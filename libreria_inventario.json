@@ -445,5 +445,13 @@
         "categoria": "Infantil",
         "precio": 34.0,
         "stock": 2
+    },
+ {
+        "id": 57,
+        "titulo": "La Sombra negra",
+        "autor": "fernanda",
+        "categoria": "Ficci\u00f3n",
+        "precio": 39.9,
+        "stock": 10
     }
 ]

@@ -21,25 +21,31 @@ def main():
         """
           )
 
-    opcion = input("Ingresa el número de la acción que deseas realizar: ")
+    while True:
+        opcion = input("Ingresa el número de la acción que deseas realizar: ")
 
-    if opcion == "1":
+        if re.fullmatch(r"\d+", opcion):
+            opcion = int(opcion)
+            break
+
+        else:
+            print("POR FAVOR, INGRESA UNA OPCIÓN VÁLIDA.")
+
+    if opcion == 1:
         registrar_producto()
 
-    elif opcion == "2":
+    elif opcion == 2:
         buscar_productos()
 
-    elif opcion == "3":
+    elif opcion == 3:
         actualizar_stock()
 
-    elif opcion == "4":
+    elif opcion == 4:
         eliminar_producto()
 
-    elif opcion == "5":
-        generar_reporte()
-
-    elif opcion == "0":
+    elif opcion == 0:
         limpiar_terminal()
+        exit()
 
     else:
         limpiar_terminal()
@@ -107,6 +113,7 @@ presione 0 para volver al menú principal o enter para salir: """)
 
 
 def buscar_productos():
+    limpiar_terminal()
     print("""
     ------------------------------
             MENÚ DE BÚSQUEDA
@@ -114,14 +121,37 @@ def buscar_productos():
     1. Buscar por título          
     2. Buscar por autor
     3. Buscar por categoría      
-    3. Búsqueda general
+    4. Búsqueda general
           
 
     0. Volver al menú principal
         """
           )
 
-    opcion = input("Ingresa el número de la acción que deseas realizar: ")
+    while True:
+
+        opcion = input("Ingresa el número de la acción que deseas realizar: ")
+        if re.fullmatch(r"\d+", opcion):
+            opcion = int(opcion)
+            break
+
+        else:
+            print("POR FAVOR, INGRESA UNA OPCIÓN VÁLIDA.")
+
+    if opcion == 1:
+        titulo = input("Ingrese la palabra o frase a buscar: ")
+        buscar_coincidencias(titulo, "titulo", inventario)
+
+        opcion = input("""
+                   
+1. Buscar de nuevo.                                  
+0. Vover a menú principal.""")
+    if opcion == 2:
+        autor = input("Ingrese la palabra o frase a buscar: ")
+        buscar_coincidencias(autor, "autor", inventario)
+    if opcion == 3:
+        categoria = input("Ingrese la palabra o frase a buscar: ")
+        buscar_coincidencias(titulo, "categoria", inventario)
 
 
 def actualizar_stock():
@@ -177,11 +207,6 @@ def eliminar_producto():
         r"C:\Users\SBOO\Desktop\libreria_inventario.json", inventario)
 
 
-def generar_reporte():
-
-    pass
-
-
 def buscar_titulo(titulo, inventario):
 
     for i, item in enumerate(inventario):
@@ -224,7 +249,7 @@ def actualizar_archivo_inventario(ruta_archivo, inventario):
 
 
 inventario = cargar_inventario_desde_archivo(
-    r"C:\Users\SBOO\Desktop\libreria_inventario.json")
+    r"C:\Users\SBOO\Desktop\Proyecto Final PY Latino\libreria_inventario.json")
 
 
 def validar_valor(campo):
@@ -249,15 +274,28 @@ INGRESA {campo} DEL PRODUCTO
     return valor
 
 
-def buscar_libro(valor,  inventario):
-
+def buscar_coincidencias(texto_buscado, tipo, inventario):
+    lista_coincidencias = []
     for i, item in enumerate(inventario):
 
-        if valor == item["titulo"]:
-            return item, i
+        if texto_buscado.upper() in item[f"{tipo}"].upper():
+            lista_coincidencias.append(item)
 
-        if valor == item["autor"]:
-            return item, i
+    print("""
+
+---------------------------------------------------------------------------------------------
+|            TÍTULO           |         AUTOR         |    CATEGORÍA    |  PRECIO  |  STOCK |
+---------------------------------------------------------------------------------------------""")
+
+    for libro in lista_coincidencias:
+        print(f"| {libro['titulo']:<29}"
+              f"| {libro['autor']:<21}| {libro['categoria']:<16}"
+              f"| {libro['precio']:<9}| {libro['stock']:<7}|")
+
+    return lista_coincidencias
+
+    #    if valor == item["autor"]:
+    #        return item, i
 
 
 main()
