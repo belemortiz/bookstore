@@ -347,7 +347,7 @@ def actualizar_archivo_inventario(ruta_archivo, inventario):
 
 
 inventario = cargar_inventario_desde_archivo(
-    r"C:\Users\SBOO\Desktop\Proyecto Final PY Latino\libreria_inventario.json")
+    r"libreria_inventario.json")
 
 
 def validar_valor(campo):
