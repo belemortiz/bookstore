@@ -63,9 +63,9 @@ def registrar_producto():
     autor = validar_valor("AUTOR")
 
     categoria = validar_valor("CATEGORÍA")
+    limpiar_terminal()
 
     while True:
-        limpiar_terminal()
         precio = input("""
 INGRESA EL PRECIO DEL PRODUCTO
 (o escriba 0 para volver al menú principal): """)
@@ -76,11 +76,14 @@ INGRESA EL PRECIO DEL PRODUCTO
         elif re.fullmatch(r"\d+(\.\d+)?", precio):
             precio = float(precio)
 
+            limpiar_terminal()
+
             break
-        print("\nNO SE PERMITEN LETRAS NI CARACTERES ESPECIALES.")
+        else:
+            print("\nNO SE PERMITEN LETRAS NI CARACTERES ESPECIALES.")
 
     while True:
-        limpiar_terminal()
+
         stock = input("""
 ¿CUÁNTOS PRODUCTOS DESEA REGISTRAR?
 (o escriba 0 para volver al menú principal): """)
@@ -91,9 +94,10 @@ INGRESA EL PRECIO DEL PRODUCTO
 
         elif re.fullmatch(r"\d+", stock):
             stock = int(stock)
+            limpiar_terminal()
             break
-
-        print("NO SE PERMITEN LETRAS, CARACTERES ESPECIALES, NI DECIMALES.")
+        else:
+            print("NO SE PERMITEN LETRAS, CARACTERES ESPECIALES, NI DECIMALES.")
 
     diccionario = {"titulo": titulo, "autor": autor,
                    "categoria": categoria, "precio": precio, "stock": stock}
@@ -122,36 +126,130 @@ def buscar_productos():
     2. Buscar por autor
     3. Buscar por categoría      
     4. Búsqueda general
-          
 
-    0. Volver al menú principal
-        """
+    0. Volver al menú principal"""
           )
 
     while True:
 
-        opcion = input("Ingresa el número de la acción que deseas realizar: ")
+        opcion = input("""
+Ingresa el número de la acción que deseas realizar: """)
+
+        if opcion == "0":
+            limpiar_terminal()
+            main()
         if re.fullmatch(r"\d+", opcion):
             opcion = int(opcion)
             break
 
         else:
-            print("POR FAVOR, INGRESA UNA OPCIÓN VÁLIDA.")
+            print("""
+POR FAVOR, INGRESA UNA OPCIÓN VÁLIDA.""")
 
     if opcion == 1:
-        titulo = input("Ingrese la palabra o frase a buscar: ")
-        buscar_coincidencias(titulo, "titulo", inventario)
+        limpiar_terminal()
+        titulo = input("Ingrese la palabra o frase del título a buscar: ")
+        while True:
+            if titulo == "0":
+                limpiar_terminal()
+                main()
+                break
+            elif titulo == "1":
+                buscar_productos()
+                break
+            elif buscar_coincidencias(titulo, "titulo", inventario):
+                break
+            else:
+                opcion = input("""
+No se encontraron resultados con conincidentes.
+(Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
+        if opcion == "1":
+            buscar_productos()
+        elif opcion == "0":
+            main()
 
-        opcion = input("""
+    elif opcion == 2:
+        limpiar_terminal()
+        autor = input("Ingrese nombre o/y apellido del autor a buscar: ")
+        while True:
+            if autor == "0":
+                limpiar_terminal()
+                main()
+                break
+            elif autor == "1":
+                buscar_productos()
+                break
+            elif buscar_coincidencias(autor, "autor", inventario):
+                break
+            else:
+                opcion = input("""
+No se encontraron resultados con conincidentes.
+(Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
+        if opcion == "1":
+            buscar_productos()
+        elif opcion == "0":
+            main()
+
+    elif opcion == 3:
+        limpiar_terminal()
+        categoria = input(
+            "Ingrese la palabra o frase de la categoría a buscar: ")
+        while True:
+            if categoria == "0":
+                limpiar_terminal()
+                main()
+                break
+            elif categoria == "1":
+                buscar_productos()
+                break
+            elif buscar_coincidencias(categoria, "categoria", inventario):
+                break
+            else:
+                opcion = input("""
+No se encontraron resultados con conincidentes.
+(Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
+        if opcion == "1":
+            buscar_productos()
+        elif opcion == "0":
+            main()
+
+    elif opcion == 4:
+        limpiar_terminal()
+        todas_categorias = ["titulo", "autor", "categoria"]
+        valor = input("Ingrese el término de la búsqueda: ")
+
+        while True:
+            if valor == "0":
+                limpiar_terminal()
+                main()
+                break
+            elif valor == "1":
+                buscar_productos()
+                break
+
+            elif buscar_coincidencias(valor, todas_categorias, inventario):
+                break
+            else:
+                opcion = input("""
+No se encontraron resultados conincidentes.
+(Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
+            if opcion == "1":
+                limpiar_terminal()
+                buscar_productos()
+            elif opcion == "0":
+                limpiar_terminal()
+                main()
+
+    eleccion = input("""
                    
 1. Buscar de nuevo.                                  
-0. Vover a menú principal.""")
-    if opcion == 2:
-        autor = input("Ingrese la palabra o frase a buscar: ")
-        buscar_coincidencias(autor, "autor", inventario)
-    if opcion == 3:
-        categoria = input("Ingrese la palabra o frase a buscar: ")
-        buscar_coincidencias(titulo, "categoria", inventario)
+0. Vover a menú principal. 
+                         
+Ingrese una opción: """)
+    if eleccion == "1":
+        buscar_productos()
+    elif eleccion == "0":
+        main()
 
 
 def actualizar_stock():
@@ -159,8 +257,8 @@ def actualizar_stock():
 
     titulo_libro = input(
         """
-    INGRESE EL TÍTULO DEL LIBRO PARA ACTUALIZAR EL STOCK: "
-    (o escriba 0 para volver al menú principal)    """)
+INGRESE EL TÍTULO DEL LIBRO PARA ACTUALIZAR EL STOCK: "
+(o escriba 0 para volver al menú principal)    """)
 
     if titulo_libro == "0":
         main()
@@ -178,7 +276,7 @@ def actualizar_stock():
     inventario[i] = item
 
     actualizar_archivo_inventario(
-        r"C:\Users\SBOO\Desktop\libreria_inventario.json", inventario)
+        r"libreria_inventario.json", inventario)
 
 
 #   print(f"Presione la tecla 'S' para salir. ")
@@ -278,19 +376,27 @@ def buscar_coincidencias(texto_buscado, tipo, inventario):
     lista_coincidencias = []
     for i, item in enumerate(inventario):
 
-        if texto_buscado.upper() in item[f"{tipo}"].upper():
-            lista_coincidencias.append(item)
+        if texto_buscado == "0":
+            main()
+        if isinstance(tipo, list):
+            for campo in tipo:
+                if texto_buscado.upper() in item[campo].upper():
+                    lista_coincidencias.append(item)
+                    break
 
-    print("""
+        elif texto_buscado.upper() in item[f"{tipo}"].upper():
+            lista_coincidencias.append(item)
+    if lista_coincidencias:
+        print("""
 
 ---------------------------------------------------------------------------------------------
 |            TÍTULO           |         AUTOR         |    CATEGORÍA    |  PRECIO  |  STOCK |
 ---------------------------------------------------------------------------------------------""")
 
-    for libro in lista_coincidencias:
-        print(f"| {libro['titulo']:<29}"
-              f"| {libro['autor']:<21}| {libro['categoria']:<16}"
-              f"| {libro['precio']:<9}| {libro['stock']:<7}|")
+        for libro in lista_coincidencias:
+            print(f"| {libro['titulo']:<29}"
+                  f"| {libro['autor']:<21}| {libro['categoria']:<16}"
+                  f"| {libro['precio']:<9}| {libro['stock']:<7}|")
 
     return lista_coincidencias
 
