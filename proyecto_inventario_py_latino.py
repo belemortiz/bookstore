@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 
 
 def main():
@@ -9,13 +10,12 @@ def main():
 
     print("""
     ------------------------------
-        SISTEMA DE INVENTARIO
+     SISTEMA DE INVENTARIO FERCHI
     ------------------------------
     1. Registrar producto.
     2. Buscar producto.
     3. Actualizar stock.
     4. Eliminar producto.
-    5. Reportes.
 
     0. Salir.
         """
@@ -83,29 +83,32 @@ INGRESA EL PRECIO DEL PRODUCTO
             print("\nNO SE PERMITEN LETRAS NI CARACTERES ESPECIALES.")
 
     while True:
-
         stock = input("""
-¿CUÁNTOS PRODUCTOS DESEA REGISTRAR?
+INGRESA EL STOCK INICIAL DEL PRODUCTO
 (o escriba 0 para volver al menú principal): """)
-
         if stock == "0":
             limpiar_terminal()
             main()
 
-        elif re.fullmatch(r"\d+", stock):
+        elif re.fullmatch(r"^\d+$", stock):
             stock = int(stock)
+
+            nombre_id = max(d["id"] for d in inventario)
+            nombre_id += 1
+
             limpiar_terminal()
+
             break
         else:
-            print("NO SE PERMITEN LETRAS, CARACTERES ESPECIALES, NI DECIMALES.")
+            print("\nNO SE PERMITEN LETRAS NI CARACTERES ESPECIALES.")
 
-    diccionario = {"titulo": titulo, "autor": autor,
+    diccionario = {"id": nombre_id, "titulo": titulo, "autor": autor,
                    "categoria": categoria, "precio": precio, "stock": stock}
 
     inventario.append(diccionario)
 
     actualizar_archivo_inventario(
-        r"C:\Users\SBOO\Desktop\libreria_inventario.json", inventario)
+        r"libreria_inventario.json", inventario)
     limpiar_terminal()
     opcion = input("""
 El libro se ingresó correctamente. 
@@ -161,12 +164,12 @@ POR FAVOR, INGRESA UNA OPCIÓN VÁLIDA.""")
                 break
             else:
                 opcion = input("""
-No se encontraron resultados con conincidentes.
+No se encontraron resultados coincidentes.
 (Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
-        if opcion == "1":
-            buscar_productos()
-        elif opcion == "0":
-            main()
+                if opcion == "1":
+                    buscar_productos()
+                elif opcion == "0":
+                    main()
 
     elif opcion == 2:
         limpiar_terminal()
@@ -183,12 +186,12 @@ No se encontraron resultados con conincidentes.
                 break
             else:
                 opcion = input("""
-No se encontraron resultados con conincidentes.
+No se encontraron resultados coincidentes.
 (Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
-        if opcion == "1":
-            buscar_productos()
-        elif opcion == "0":
-            main()
+                if opcion == "1":
+                    buscar_productos()
+                elif opcion == "0":
+                    main()
 
     elif opcion == 3:
         limpiar_terminal()
@@ -206,12 +209,12 @@ No se encontraron resultados con conincidentes.
                 break
             else:
                 opcion = input("""
-No se encontraron resultados con conincidentes.
+No se encontraron resultados coincidentes.
 (Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
-        if opcion == "1":
-            buscar_productos()
-        elif opcion == "0":
-            main()
+                if opcion == "1":
+                    buscar_productos()
+                elif opcion == "0":
+                    main()
 
     elif opcion == 4:
         limpiar_terminal()
@@ -231,14 +234,14 @@ No se encontraron resultados con conincidentes.
                 break
             else:
                 opcion = input("""
-No se encontraron resultados conincidentes.
+No se encontraron resultados coincidentes.
 (Presiones 1 para volver a buscar o 0 para regresar al menú principal): """)
-            if opcion == "1":
-                limpiar_terminal()
-                buscar_productos()
-            elif opcion == "0":
-                limpiar_terminal()
-                main()
+                if opcion == "1":
+                    limpiar_terminal()
+                    buscar_productos()
+                elif opcion == "0":
+                    limpiar_terminal()
+                    main()
 
     eleccion = input("""
                    
@@ -253,64 +256,118 @@ Ingrese una opción: """)
 
 
 def actualizar_stock():
+    """Esta actualiza el stock de un diccionario de la lista y actualizar el archivo"""
     limpiar_terminal()
+    futuro_stock = 0
 
-    titulo_libro = input(
-        """
-INGRESE EL TÍTULO DEL LIBRO PARA ACTUALIZAR EL STOCK: "
-(o escriba 0 para volver al menú principal)    """)
+    id_libro = input("""
+INGRESE EL ID DEL LIBRO. SI AÚN NO LO SABE CONSULTE LA OPCION DE BÚSQUEDA.
+(o escriba 0 para volver al menú principal): """)
 
-    if titulo_libro == "0":
-        main()
+    while True:
 
-    item, i = buscar_titulo(titulo_libro, inventario)
+        if id_libro == "0":
+            limpiar_terminal()
+            main()
+            return
 
-    if not item:
+        elif re.fullmatch(r"^\d+$", id_libro):
+            id_libro = int(id_libro)
+            i, item = buscar_id(id_libro, inventario)
 
-        actualizar_stock()
+            if item is None:
+                print("El ID no existe")
+                time.sleep(2)
+                actualizar_stock()
 
-    print(f"{titulo_libro} tiene actualmente {item['stock']}")
-    nuevo_stock = input("Ingrese nuevo Stock: ")
+            print(f"{item['titulo']} tiene actualmente {item['stock']}")
+            futuro_stock = input("Ingrese nuevo Stock: ")
+            item["stock"] = futuro_stock
 
-    item["stock"] = nuevo_stock
-    inventario[i] = item
+            actualizar_archivo_inventario(
+                r"libreria_inventario.json", inventario)
 
-    actualizar_archivo_inventario(
-        r"libreria_inventario.json", inventario)
+            eleccion = input("""  
+EL STOCK SE MODIFICÓ CORRECTAMENTE.
+               
+1. Buscar de nuevo.                                  
+0. Modificar otro stock. 
+                         
+Ingrese una opción: """)
 
+            if eleccion == "1":
+                actualizar_stock()
+            elif eleccion == "0":
+                main()
 
-#   print(f"Presione la tecla 'S' para salir. ")
+            break
+
+        else:
+            print("ID NO EXISTENTE")
+
+            time.sleep(2)
+
+            actualizar_stock()
+
 
 def eliminar_producto():
     """Esta función elimina un diccionario de la lista y actualizar el archivo"""
     limpiar_terminal()
+    while True:
+        id_libro = input("""
+INGRESE EL ID DEL LIBRO HA ELIMINAR. SI AÚN NO LO SABE CONSULTE LA OPCION DE BÚSQUEDA.
+(o escriba 0 para volver al menú principal): """)
 
-    libro_eliminado = input("""
-    INGRESE EL TÍTULO DEL LIBRO HA ELIMINAR.
-    (o escriba 0 para volver al menú principal): """)
+        if id_libro == "0":
+            limpiar_terminal()
+            main()
+            return
 
-    if libro_eliminado == "0":
-        main()
+        elif re.fullmatch(r"^\d+$", id_libro):
+            id_libro = int(id_libro)
+            i, item = buscar_id(id_libro, inventario)
 
-    i, item = buscar_titulo(libro_eliminado, inventario)
+            if item is None:
+                print("El ID no existe")
+                time.sleep(2)
+                eliminar_producto()
 
-    print(i, item)
+            del inventario[i]
 
-    if not item:
-        eliminar_producto()
+            actualizar_archivo_inventario(
+                r"libreria_inventario.json", inventario)
 
-    del inventario[item]
+            eleccion = input("""  
+EL LIBRO SE ELIMINÓ CORRECTAMENTE.
+               
+1. Eliminar otro libro.                                  
+0. Vover a menú principal. 
+                         
+Ingrese una opción: """)
 
-    actualizar_archivo_inventario(
-        r"C:\Users\SBOO\Desktop\libreria_inventario.json", inventario)
+            if eleccion == "1":
+                eliminar_producto()
+            elif eleccion == "0":
+                main()
+
+            break
+
+        else:
+            print("ID NO EXISTENTE")
+
+            time.sleep(2)
+
+            eliminar_producto()
 
 
-def buscar_titulo(titulo, inventario):
+def buscar_id(libro_id, inventario):
 
     for i, item in enumerate(inventario):
 
-        if titulo == item["titulo"]:
-            return item, i
+        if libro_id == item["id"]:
+            return i, item
+
+    return None, None
 
 
 def limpiar_terminal():
@@ -378,6 +435,7 @@ def buscar_coincidencias(texto_buscado, tipo, inventario):
 
         if texto_buscado == "0":
             main()
+
         if isinstance(tipo, list):
             for campo in tipo:
                 if texto_buscado.upper() in item[campo].upper():
@@ -389,31 +447,17 @@ def buscar_coincidencias(texto_buscado, tipo, inventario):
     if lista_coincidencias:
         print("""
 
----------------------------------------------------------------------------------------------
-|            TÍTULO           |         AUTOR         |    CATEGORÍA    |  PRECIO  |  STOCK |
----------------------------------------------------------------------------------------------""")
+------------------------------------------------------------------------------------------------
+|  ID  |            TÍTULO           |         AUTOR        |   CATEGORÍA   |  PRECIO  | STOCK |
+------------------------------------------------------------------------------------------------""")
 
         for libro in lista_coincidencias:
-            print(f"| {libro['titulo']:<29}"
-                  f"| {libro['autor']:<21}| {libro['categoria']:<16}"
-                  f"| {libro['precio']:<9}| {libro['stock']:<7}|")
+            print(f"| {libro['id']:<5}"
+                  f"| {libro['titulo']:<28}"
+                  f"| {libro['autor']:<21}| {libro['categoria']:<14}"
+                  f"| {libro['precio']:<9}| {libro['stock']:<6}|")
 
     return lista_coincidencias
 
-    #    if valor == item["autor"]:
-    #        return item, i
-
 
 main()
-
-
-# print("""
-
-# ---------------------------------------------------------------------------------------------
-# |            TÍTULO           |         AUTOR         |    CATEGORÍA    |  PRECIO  |  STOCK |
-# ---------------------------------------------------------------------------------------------""")
-
-#    for libro in inventario:
-#        print(f"| {libro['titulo']:<29}"
-#              f"| {libro['autor']:<21}| {libro['categoria']:<16}"
-#              f"| {libro['precio']:<9}| {libro['stock']:<7}|")
